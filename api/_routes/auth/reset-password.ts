@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { isValidPassword } from '@lanpapp/shared';
-import { cors, handleError, validate, BadRequestError } from '../_lib';
-import { supabaseAdmin } from '../_lib/supabase';
+import { cors, handleError, validate, BadRequestError } from '../../_lib';
+import { supabaseAdmin } from '../../_lib/supabase';
 
 const resetPasswordSchema = z.object({
   access_token: z.string().min(1, 'Access token is required'),

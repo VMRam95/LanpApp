@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { NominationStatus, MemberStatus, NotificationType } from '@lanpapp/shared';
-import { cors, handleError, validate, authenticate, ForbiddenError, BadRequestError, NotFoundError, notifyUser, notifyUsers } from '../_lib';
-import { db } from '../_lib/supabase';
+import { cors, handleError, validate, authenticate, ForbiddenError, BadRequestError, NotFoundError, notifyUser, notifyUsers } from '../../_lib';
+import { db } from '../../_lib/supabase';
 
 const createNominationSchema = z.object({
   lanpa_id: z.string().uuid(),

@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import { cors, handleError, validate, authenticate, BadRequestError } from '../_lib';
-import { db } from '../_lib/supabase';
+import { cors, handleError, validate, authenticate, BadRequestError } from '../../_lib';
+import { db } from '../../_lib/supabase';
 
 const subscribePushSchema = z.object({
   endpoint: z.string().url(),

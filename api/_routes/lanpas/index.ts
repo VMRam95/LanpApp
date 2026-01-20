@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { LanpaStatus, MemberStatus, type CreateLanpaRequest } from '@lanpapp/shared';
-import { cors, handleError, validate, authenticate, BadRequestError } from '../_lib';
-import { db } from '../_lib/supabase';
+import { cors, handleError, validate, authenticate, BadRequestError } from '../../_lib';
+import { db } from '../../_lib/supabase';
 
 // Custom datetime validator
 const datetimeString = z.string().refine(

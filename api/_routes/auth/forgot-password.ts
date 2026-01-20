@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import { cors, handleError, validate } from '../_lib';
-import { supabaseAdmin } from '../_lib/supabase';
+import { cors, handleError, validate } from '../../_lib';
+import { supabaseAdmin } from '../../_lib/supabase';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Invalid email address'),

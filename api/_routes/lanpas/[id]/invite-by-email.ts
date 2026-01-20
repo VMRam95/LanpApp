@@ -2,8 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import crypto from 'crypto';
 import { MemberStatus, NotificationType } from '@lanpapp/shared';
-import { cors, handleError, validate, authenticate, ForbiddenError, NotFoundError, BadRequestError, notifyUser, sendTemplateEmail } from '../../_lib';
-import { db } from '../../_lib/supabase';
+import { cors, handleError, validate, authenticate, ForbiddenError, NotFoundError, BadRequestError, notifyUser, sendTemplateEmail } from '../../../_lib';
+import { db } from '../../../_lib/supabase';
 
 const inviteByEmailSchema = z.object({
   emails: z.array(z.string().email()).min(1).max(20),

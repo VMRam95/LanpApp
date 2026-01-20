@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import { cors, handleError, validate, BadRequestError, UnauthorizedError } from '../_lib';
-import { supabaseAdmin } from '../_lib/supabase';
+import { cors, handleError, validate, BadRequestError, UnauthorizedError } from '../../_lib';
+import { supabaseAdmin } from '../../_lib/supabase';
 
 const refreshSchema = z.object({
   refresh_token: z.string().min(1, 'Refresh token is required'),

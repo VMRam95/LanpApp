@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { cors, handleError, authenticate, NotFoundError } from '../_lib';
-import { db } from '../_lib/supabase';
+import { cors, handleError, authenticate, NotFoundError } from '../../_lib';
+import { db } from '../../_lib/supabase';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (cors(req, res)) return;

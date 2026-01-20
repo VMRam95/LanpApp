@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { MemberStatus } from '@lanpapp/shared';
-import { cors, handleError, authenticate, ForbiddenError, BadRequestError } from '../../_lib';
-import { db } from '../../_lib/supabase';
+import { cors, handleError, authenticate, ForbiddenError, BadRequestError } from '../../../_lib';
+import { db } from '../../../_lib/supabase';
 
 // Helper to check if user is member of lanpa
 const isLanpaMember = async (lanpaId: string, userId: string): Promise<boolean> => {

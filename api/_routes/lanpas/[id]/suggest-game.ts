@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { LanpaStatus, MemberStatus } from '@lanpapp/shared';
-import { cors, handleError, validate, authenticate, ForbiddenError, NotFoundError, ConflictError, BadRequestError } from '../../_lib';
-import { db } from '../../_lib/supabase';
+import { cors, handleError, validate, authenticate, ForbiddenError, NotFoundError, ConflictError, BadRequestError } from '../../../_lib';
+import { db } from '../../../_lib/supabase';
 
 const suggestGameSchema = z.object({
   game_id: z.string().uuid(),

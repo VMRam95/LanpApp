@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { NominationStatus, MemberStatus } from '@lanpapp/shared';
-import { cors, handleError, validate, authenticate, ForbiddenError, BadRequestError, NotFoundError } from '../../_lib';
-import { db } from '../../_lib/supabase';
+import { cors, handleError, validate, authenticate, ForbiddenError, BadRequestError, NotFoundError } from '../../../_lib';
+import { db } from '../../../_lib/supabase';
 
 const voteSchema = z.object({
   vote: z.boolean(), // true = guilty, false = innocent

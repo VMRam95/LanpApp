@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { LanpaStatus, MemberStatus, NotificationType } from '@lanpapp/shared';
-import { cors, handleError, validate, authenticate, ForbiddenError, BadRequestError, notifyUser } from '../../_lib';
-import { db } from '../../_lib/supabase';
+import { cors, handleError, validate, authenticate, ForbiddenError, BadRequestError, notifyUser } from '../../../_lib';
+import { db } from '../../../_lib/supabase';
 
 const rateSchema = z.object({
   ratings: z.array(z.object({

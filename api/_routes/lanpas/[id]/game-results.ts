@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { MemberStatus, type GameVoteResult } from '@lanpapp/shared';
 import { getRandomItem } from '@lanpapp/shared';
-import { cors, handleError, authenticate, ForbiddenError, BadRequestError } from '../../_lib';
-import { db } from '../../_lib/supabase';
+import { cors, handleError, authenticate, ForbiddenError, BadRequestError } from '../../../_lib';
+import { db } from '../../../_lib/supabase';
 
 // Helper to check if user is member
 const isLanpaMember = async (lanpaId: string, userId: string): Promise<boolean> => {

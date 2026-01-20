@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import type { LoginRequest, AuthResponse } from '@lanpapp/shared';
-import { cors, handleError, validate, UnauthorizedError } from '../_lib';
-import { supabaseAdmin, db } from '../_lib/supabase';
+import { cors, handleError, validate, UnauthorizedError } from '../../_lib';
+import { supabaseAdmin, db } from '../../_lib/supabase';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),

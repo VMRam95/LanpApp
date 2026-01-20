@@ -2,8 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { LanpaStatus, MemberStatus, NotificationType, type GameVoteResult } from '@lanpapp/shared';
 import { getRandomItem } from '@lanpapp/shared';
-import { cors, handleError, validate, authenticate, NotFoundError, ForbiddenError, BadRequestError, notifyUsers } from '../../_lib';
-import { db } from '../../_lib/supabase';
+import { cors, handleError, validate, authenticate, NotFoundError, ForbiddenError, BadRequestError, notifyUsers } from '../../../_lib';
+import { db } from '../../../_lib/supabase';
 
 const updateStatusSchema = z.object({
   status: z.nativeEnum(LanpaStatus),

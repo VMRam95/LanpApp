@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import crypto from 'crypto';
-import { cors, handleError, validate, authenticate, ForbiddenError, BadRequestError } from '../../_lib';
-import { db } from '../../_lib/supabase';
+import { cors, handleError, validate, authenticate, ForbiddenError, BadRequestError } from '../../../_lib';
+import { db } from '../../../_lib/supabase';
 
 const inviteLinkSchema = z.object({
   expires_in_hours: z.number().min(1).max(168).default(24), // 1 hour to 1 week

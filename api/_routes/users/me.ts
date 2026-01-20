@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { isValidUsername } from '@lanpapp/shared';
-import { cors, handleError, validate, authenticate, BadRequestError, ConflictError } from '../_lib';
-import { db } from '../_lib/supabase';
+import { cors, handleError, validate, authenticate, BadRequestError, ConflictError } from '../../_lib';
+import { db } from '../../_lib/supabase';
 
 const updateUserSchema = z.object({
   username: z.string().refine(isValidUsername, {

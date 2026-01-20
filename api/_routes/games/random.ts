@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getRandomItem } from '@lanpapp/shared';
-import { cors, handleError, authenticate, BadRequestError, NotFoundError } from '../_lib';
-import { db } from '../_lib/supabase';
+import { cors, handleError, authenticate, BadRequestError, NotFoundError } from '../../_lib';
+import { db } from '../../_lib/supabase';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (cors(req, res)) return;

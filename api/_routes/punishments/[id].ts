@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
 import { PunishmentSeverity } from '@lanpapp/shared';
-import { cors, handleError, validate, authenticate, BadRequestError, NotFoundError } from '../_lib';
-import { db } from '../_lib/supabase';
+import { cors, handleError, validate, authenticate, BadRequestError, NotFoundError } from '../../_lib';
+import { db } from '../../_lib/supabase';
 
 const updatePunishmentSchema = z.object({
   name: z.string().min(1).max(100).optional(),
