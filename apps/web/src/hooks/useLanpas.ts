@@ -251,3 +251,34 @@ export function useUpdateMemberStatus() {
     },
   });
 }
+
+// Remove member from lanpa
+export function useRemoveMember() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ lanpaId, memberId }: { lanpaId: string; memberId: string }) => {
+      await api.delete(`/lanpas/${lanpaId}/members/${memberId}`);
+      return memberId;
+    },
+    onSuccess: (_, { lanpaId }) => {
+      queryClient.invalidateQueries({ queryKey: lanpaKeys.detail(lanpaId) });
+    },
+  });
+}
+
+// Select game manually (admin override)
+export function useSelectGame() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ lanpaId, gameId }: { lanpaId: string; gameId: string }) => {
+      const response = await api.patch(`/lanpas/${lanpaId}/select-game`, { game_id: gameId });
+      return response.data.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: lanpaKeys.detail(data.id) });
+      queryClient.invalidateQueries({ queryKey: lanpaGamesKeys.byLanpa(data.id) });
+    },
+  });
+}

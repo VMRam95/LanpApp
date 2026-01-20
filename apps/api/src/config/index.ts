@@ -10,7 +10,8 @@ const envSchema = z.object({
   VAPID_PUBLIC_KEY: z.string().optional(),
   VAPID_PRIVATE_KEY: z.string().optional(),
   VAPID_EMAIL: z.string().optional(),
-  RESEND_API_KEY: z.string().optional(),
+  EMAIL_SERVICE_URL: z.string().url().optional(),
+  EMAIL_SERVICE_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().optional(),
   FRONTEND_URL: z.string().url().default('http://localhost:5173'),
 });
@@ -43,7 +44,8 @@ export const config = {
     email: env.VAPID_EMAIL,
   },
   email: {
-    resendApiKey: env.RESEND_API_KEY,
+    serviceUrl: env.EMAIL_SERVICE_URL,
+    apiKey: env.EMAIL_SERVICE_API_KEY,
     from: env.EMAIL_FROM || 'LanpApp <noreply@lanpapp.com>',
   },
   frontendUrl: env.FRONTEND_URL,

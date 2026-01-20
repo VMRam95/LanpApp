@@ -10,7 +10,7 @@ import {
 } from '@lanpapp/shared';
 import { getRandomItem } from '@lanpapp/shared';
 import { db } from '../services/supabase.service.js';
-import { notifyUser, notifyUsers, sendEmailNotification } from '../services/notification.service.js';
+import { notifyUser, notifyUsers, sendTemplateEmail } from '../services/notification.service.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { validate } from '../middleware/validate.middleware.js';
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from '../middleware/error.middleware.js';
@@ -636,29 +636,12 @@ lanpasRouter.post('/:id/invite-by-email', authenticate, validate(inviteByEmailSc
 
           results.push({ email, status: 'invited_existing' });
         } else {
-          // User doesn't exist - send email invitation
-          await sendEmailNotification(
-            email,
-            `You're invited to join ${lanpa.name}!`,
-            `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #4F46E5;">You're invited to a Lanpa!</h2>
-              <p>${adminName} has invited you to join <strong>${lanpa.name}</strong> on LanpApp.</p>
-              <p>LanpApp is an app to organize and manage Lan Parties with friends.</p>
-              <div style="margin: 30px 0;">
-                <a href="${inviteLink}"
-                   style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-                  Join the Lanpa
-                </a>
-              </div>
-              <p style="color: #666; font-size: 14px;">
-                If the button doesn't work, copy and paste this link into your browser:<br>
-                <a href="${inviteLink}" style="color: #4F46E5;">${inviteLink}</a>
-              </p>
-              <p style="color: #666; font-size: 12px; margin-top: 30px;">
-                This invitation link expires in 7 days.
-              </p>
-            </div>`
-          );
+          // User doesn't exist - send email invitation using template
+          await sendTemplateEmail(email, 'lanpapp/lanpa-invitation', {
+            adminName,
+            lanpaName: lanpa.name,
+            inviteLink,
+          });
 
           results.push({ email, status: 'sent' });
         }
@@ -1072,13 +1055,17 @@ lanpasRouter.get('/:id/games', authenticate, async (req, res, next) => {
     });
 
     // Build response
-    const games = (suggestions || []).map(s => ({
-      game: Array.isArray(s.game) ? s.game[0] : s.game,
-      suggested_by: s.suggested_by_user,
-      suggested_at: s.created_at,
-      votes_count: voteCounts[Array.isArray(s.game) ? s.game[0]?.id : s.game?.id] || 0,
-      is_winner: lanpa.selected_game_id === (Array.isArray(s.game) ? s.game[0]?.id : s.game?.id),
-    }));
+    const games = (suggestions || []).map(s => {
+      const game = Array.isArray(s.game) ? s.game[0] : s.game;
+      const gameId = (game as { id?: string } | null)?.id;
+      return {
+        game,
+        suggested_by: s.suggested_by_user,
+        suggested_at: s.created_at,
+        votes_count: gameId ? (voteCounts[gameId] || 0) : 0,
+        is_winner: lanpa.selected_game_id === gameId,
+      };
+    });
 
     // Sort by votes (descending)
     games.sort((a, b) => b.votes_count - a.votes_count);
@@ -1213,6 +1200,116 @@ lanpasRouter.patch('/:id/members/:memberId/status', authenticate, async (req, re
 
     if (error) {
       throw new BadRequestError('Failed to update member status');
+    }
+
+    res.json({ data: updated });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /api/lanpas/:id/members/:memberId - Remove a member from the lanpa
+lanpasRouter.delete('/:id/members/:memberId', authenticate, async (req, res, next) => {
+  try {
+    const { id, memberId } = req.params;
+
+    // Check if user is admin
+    if (!(await isLanpaAdmin(id, req.userId!))) {
+      throw new ForbiddenError('Only the admin can remove members');
+    }
+
+    // Get member info
+    const { data: member } = await db()
+      .from('lanpa_members')
+      .select('user_id')
+      .eq('id', memberId)
+      .eq('lanpa_id', id)
+      .single();
+
+    if (!member) {
+      throw new NotFoundError('Member not found');
+    }
+
+    // Admin cannot remove themselves
+    if (member.user_id === req.userId) {
+      throw new BadRequestError('You cannot remove yourself from the lanpa');
+    }
+
+    // Delete the member
+    const { error } = await db()
+      .from('lanpa_members')
+      .delete()
+      .eq('id', memberId);
+
+    if (error) {
+      throw new BadRequestError('Failed to remove member');
+    }
+
+    res.json({ message: 'Member removed successfully' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Validation schema for select game
+const selectGameSchema = z.object({
+  game_id: z.string().uuid(),
+});
+
+// PATCH /api/lanpas/:id/select-game - Manually select a game (override voting result)
+lanpasRouter.patch('/:id/select-game', authenticate, validate(selectGameSchema), async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { game_id } = req.body;
+
+    // Check if user is admin
+    if (!(await isLanpaAdmin(id, req.userId!))) {
+      throw new ForbiddenError('Only the admin can select a game');
+    }
+
+    // Check lanpa status - only allow in in_progress
+    const { data: lanpa } = await db()
+      .from('lanpas')
+      .select('status')
+      .eq('id', id)
+      .single();
+
+    if (!lanpa) {
+      throw new NotFoundError('Lanpa not found');
+    }
+
+    if (lanpa.status !== LanpaStatus.IN_PROGRESS) {
+      throw new BadRequestError('Game selection is only allowed when the lanpa is in progress');
+    }
+
+    // Check if game was suggested for this lanpa
+    const { data: suggestion } = await db()
+      .from('game_suggestions')
+      .select('id')
+      .eq('lanpa_id', id)
+      .eq('game_id', game_id)
+      .single();
+
+    if (!suggestion) {
+      throw new BadRequestError('This game was not suggested for this lanpa');
+    }
+
+    // Update selected game
+    const { data: updated, error } = await db()
+      .from('lanpas')
+      .update({
+        selected_game_id: game_id,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select(`
+        *,
+        selected_game:games(*)
+      `)
+      .single();
+
+    if (error) {
+      throw new BadRequestError('Failed to select game');
     }
 
     res.json({ data: updated });

@@ -42,3 +42,5 @@ supabase/.temp/
 *.tsbuildinfo
 .eslintcache
 .cache/
+.vercel
+.env*.local

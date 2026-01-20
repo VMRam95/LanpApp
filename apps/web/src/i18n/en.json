@@ -132,6 +132,78 @@
       "copyLink": "Copy Invite Link",
       "suggestGame": "Suggest Game"
     },
+    "adminPanel": {
+      "title": "Admin Panel",
+      "subtitle": "Manage your lanpa"
+    },
+    "tabs": {
+      "status": "Status",
+      "members": "Members",
+      "games": "Games",
+      "settings": "Settings"
+    },
+    "statusProgress": {
+      "draft": "Setup",
+      "voting_games": "Suggest",
+      "voting_active": "Vote",
+      "in_progress": "Playing",
+      "completed": "Done"
+    },
+    "statusDescriptions": {
+      "draft": "Configure your lanpa and invite members",
+      "voting_games": "Members can suggest games to play",
+      "voting_active": "Members are voting for their favorite game",
+      "in_progress": "The lanpa is currently in progress",
+      "completed": "The lanpa has ended"
+    },
+    "statusActions": {
+      "openSuggestions": "Open Suggestions",
+      "openSuggestionsDesc": "Allow members to suggest games",
+      "startVoting": "Start Voting",
+      "startVotingDesc": "Close suggestions and start voting",
+      "startEvent": "Start Event",
+      "startEventDesc": "Close voting and start the lanpa",
+      "completeEvent": "Complete Event",
+      "completeEventDesc": "Mark the lanpa as completed",
+      "backToSetup": "Back to Setup",
+      "backToSuggestions": "Back to Suggestions"
+    },
+    "memberManagement": {
+      "title": "Member Management",
+      "subtitle": "Manage lanpa members",
+      "noMembers": "No members yet",
+      "status": "Status",
+      "actions": "Actions",
+      "confirmMember": "Confirm",
+      "markAttended": "Mark Attended",
+      "removeMember": "Remove",
+      "removeConfirm": "Are you sure you want to remove this member?",
+      "cannotRemoveSelf": "You cannot remove yourself",
+      "memberRemoved": "Member removed successfully"
+    },
+    "gameManagement": {
+      "title": "Game Selection",
+      "subtitle": "Manage game selection for this lanpa",
+      "currentGame": "Current Game",
+      "noGameSelected": "No game selected",
+      "suggestedGames": "Suggested Games",
+      "noSuggestedGames": "No games suggested yet",
+      "selectGame": "Select Game",
+      "overrideGame": "Override Selection",
+      "overrideConfirm": "Are you sure you want to override the current game selection?",
+      "gameSelected": "Game selected successfully"
+    },
+    "lanpaSettings": {
+      "title": "Settings",
+      "subtitle": "Configure lanpa settings",
+      "editDetails": "Edit Details",
+      "copyInviteLink": "Copy Invite Link",
+      "linkCopied": "Invite link copied!",
+      "dangerZone": "Danger Zone",
+      "deleteLanpa": "Delete Lanpa",
+      "deleteConfirm": "Are you sure you want to delete this lanpa? This action cannot be undone.",
+      "cannotDeleteInProgress": "Cannot delete a lanpa in progress"
+    },
     "joiningLanpa": "Joining Lanpa...",
     "pleaseWait": "Please wait while we process your invitation",
     "joinSuccess": "Successfully Joined!",

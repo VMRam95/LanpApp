@@ -132,6 +132,78 @@
       "copyLink": "Copiar Enlace",
       "suggestGame": "Sugerir Juego"
     },
+    "adminPanel": {
+      "title": "Panel de Admin",
+      "subtitle": "Gestiona tu lanpa"
+    },
+    "tabs": {
+      "status": "Estado",
+      "members": "Miembros",
+      "games": "Juegos",
+      "settings": "Config"
+    },
+    "statusProgress": {
+      "draft": "Setup",
+      "voting_games": "Sugerir",
+      "voting_active": "Votar",
+      "in_progress": "Jugando",
+      "completed": "Fin"
+    },
+    "statusDescriptions": {
+      "draft": "Configura tu lanpa e invita miembros",
+      "voting_games": "Los miembros pueden sugerir juegos",
+      "voting_active": "Los miembros estan votando por su juego favorito",
+      "in_progress": "La lanpa esta en progreso",
+      "completed": "La lanpa ha terminado"
+    },
+    "statusActions": {
+      "openSuggestions": "Abrir Sugerencias",
+      "openSuggestionsDesc": "Permitir a los miembros sugerir juegos",
+      "startVoting": "Iniciar Votacion",
+      "startVotingDesc": "Cerrar sugerencias e iniciar votacion",
+      "startEvent": "Comenzar Evento",
+      "startEventDesc": "Cerrar votacion y comenzar la lanpa",
+      "completeEvent": "Completar Evento",
+      "completeEventDesc": "Marcar la lanpa como completada",
+      "backToSetup": "Volver a Setup",
+      "backToSuggestions": "Volver a Sugerencias"
+    },
+    "memberManagement": {
+      "title": "Gestion de Miembros",
+      "subtitle": "Gestiona los miembros de la lanpa",
+      "noMembers": "No hay miembros aun",
+      "status": "Estado",
+      "actions": "Acciones",
+      "confirmMember": "Confirmar",
+      "markAttended": "Marcar Asistido",
+      "removeMember": "Eliminar",
+      "removeConfirm": "Estas seguro que quieres eliminar a este miembro?",
+      "cannotRemoveSelf": "No puedes eliminarte a ti mismo",
+      "memberRemoved": "Miembro eliminado exitosamente"
+    },
+    "gameManagement": {
+      "title": "Seleccion de Juego",
+      "subtitle": "Gestiona la seleccion de juego para esta lanpa",
+      "currentGame": "Juego Actual",
+      "noGameSelected": "Ningun juego seleccionado",
+      "suggestedGames": "Juegos Sugeridos",
+      "noSuggestedGames": "No hay juegos sugeridos aun",
+      "selectGame": "Seleccionar Juego",
+      "overrideGame": "Cambiar Seleccion",
+      "overrideConfirm": "Estas seguro que quieres cambiar la seleccion de juego actual?",
+      "gameSelected": "Juego seleccionado exitosamente"
+    },
+    "lanpaSettings": {
+      "title": "Configuracion",
+      "subtitle": "Configura los ajustes de la lanpa",
+      "editDetails": "Editar Detalles",
+      "copyInviteLink": "Copiar Enlace de Invitacion",
+      "linkCopied": "Enlace de invitacion copiado!",
+      "dangerZone": "Zona de Peligro",
+      "deleteLanpa": "Eliminar Lanpa",
+      "deleteConfirm": "Estas seguro que quieres eliminar esta lanpa? Esta accion no se puede deshacer.",
+      "cannotDeleteInProgress": "No se puede eliminar una lanpa en progreso"
+    },
     "joiningLanpa": "Uniendose a la Lanpa...",
     "pleaseWait": "Por favor espera mientras procesamos tu invitacion",
     "joinSuccess": "Te has unido exitosamente!",

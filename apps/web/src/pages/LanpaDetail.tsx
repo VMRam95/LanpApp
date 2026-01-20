@@ -8,7 +8,6 @@ import {
   UserGroupIcon,
   PuzzlePieceIcon,
   LinkIcon,
-  PlayIcon,
   CheckIcon,
   TrashIcon,
   PencilIcon,
@@ -16,11 +15,11 @@ import {
   XMarkIcon,
   TrophyIcon,
   ExclamationTriangleIcon,
-  StarIcon,
   ChartBarIcon,
 } from '@heroicons/react/24/outline';
 import { Card, CardHeader, Button, Modal, ModalFooter, Input, Textarea } from '../components/ui';
 import { GameCard, GameCardCompact } from '../components/GameCard';
+import { AdminPanel } from '../components/admin';
 import { api } from '../services/api';
 import { useAuthStore } from '../store/auth.store';
 import {
@@ -33,11 +32,14 @@ import {
   useSuggestGame,
   useVoteGame,
   useGameResults,
+  useUpdateMemberStatus,
+  useRemoveMember,
+  useSelectGame,
 } from '../hooks/useLanpas';
 import { useGames } from '../hooks/useGames';
 import { useLanpaGames } from '../hooks/useLanpaGames';
 import { useLanpaPunishments } from '../hooks/useLanpaPunishments';
-import type { Game, User, LanpaStatus } from '@lanpapp/shared';
+import type { Game, User } from '@lanpapp/shared';
 
 export function LanpaDetail() {
   const { id } = useParams<{ id: string }>();
@@ -98,6 +100,9 @@ export function LanpaDetail() {
   const inviteByEmailMutation = useInviteByEmail();
   const suggestGameMutation = useSuggestGame();
   const voteGameMutation = useVoteGame();
+  const updateMemberStatusMutation = useUpdateMemberStatus();
+  const removeMemberMutation = useRemoveMember();
+  const selectGameMutation = useSelectGame();
 
   const isAdmin = lanpa?.admin_id === user?.id;
   const userVote = lanpa?.game_votes?.find((v) => v.user_id === user?.id)?.game_id;
@@ -391,52 +396,29 @@ export function LanpaDetail() {
         </Card>
       </div>
 
-      {/* Admin Actions */}
+      {/* Admin Panel */}
       {isAdmin && (
-        <Card>
-          <CardHeader
-            title="Admin Actions"
-            subtitle="Manage the lanpa status and flow"
-          />
-          <div className="flex flex-wrap gap-2">
-            {lanpa.status === 'draft' && (
-              <Button
-                leftIcon={<PlayIcon className="h-4 w-4" />}
-                onClick={() => updateStatusMutation.mutate({ id: id!, status: 'voting_games' as LanpaStatus })}
-                isLoading={updateStatusMutation.isPending}
-              >
-                {t('lanpas.actions.startVoting')}
-              </Button>
-            )}
-            {lanpa.status === 'voting_games' && (
-              <Button
-                leftIcon={<CheckIcon className="h-4 w-4" />}
-                onClick={() => updateStatusMutation.mutate({ id: id!, status: 'voting_active' as LanpaStatus })}
-                isLoading={updateStatusMutation.isPending}
-              >
-                {t('lanpas.actions.endVoting')}
-              </Button>
-            )}
-            {lanpa.status === 'voting_active' && (
-              <Button
-                leftIcon={<PlayIcon className="h-4 w-4" />}
-                onClick={() => updateStatusMutation.mutate({ id: id!, status: 'in_progress' as LanpaStatus })}
-                isLoading={updateStatusMutation.isPending}
-              >
-                {t('lanpas.actions.start')}
-              </Button>
-            )}
-            {lanpa.status === 'in_progress' && (
-              <Button
-                leftIcon={<CheckIcon className="h-4 w-4" />}
-                onClick={() => updateStatusMutation.mutate({ id: id!, status: 'completed' as LanpaStatus })}
-                isLoading={updateStatusMutation.isPending}
-              >
-                {t('lanpas.actions.complete')}
-              </Button>
-            )}
-          </div>
-        </Card>
+        <AdminPanel
+          lanpa={lanpa}
+          currentUserId={user?.id || ''}
+          onStatusChange={(status) => updateStatusMutation.mutate({ id: id!, status })}
+          onUpdateMemberStatus={(memberId, status) =>
+            updateMemberStatusMutation.mutate({ lanpaId: id!, memberId, status })
+          }
+          onRemoveMember={(memberId) =>
+            removeMemberMutation.mutate({ lanpaId: id!, memberId })
+          }
+          onSelectGame={(gameId) =>
+            selectGameMutation.mutate({ lanpaId: id!, gameId })
+          }
+          onEditClick={() => setIsEditModalOpen(true)}
+          onDeleteClick={() => deleteMutation.mutate(id!, { onSuccess: () => navigate('/lanpas') })}
+          onCopyInviteLink={copyInviteLink}
+          isStatusLoading={updateStatusMutation.isPending}
+          isMemberUpdating={updateMemberStatusMutation.isPending}
+          isMemberRemoving={removeMemberMutation.isPending}
+          isGameSelecting={selectGameMutation.isPending}
+        />
       )}
 
       {/* Game Suggestions Section - Shows during voting_games status */}

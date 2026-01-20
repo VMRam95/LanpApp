@@ -1,5 +1,4 @@
 import webPush from 'web-push';
-import { Resend } from 'resend';
 import { NotificationType, type User, type Notification } from '@lanpapp/shared';
 import { config } from '../config/index.js';
 import { db, supabaseAdmin } from './supabase.service.js';
@@ -13,8 +12,55 @@ if (config.webPush.publicKey && config.webPush.privateKey && config.webPush.emai
   );
 }
 
-// Initialize Resend if API key is configured
-const resend = config.email.resendApiKey ? new Resend(config.email.resendApiKey) : null;
+// Email service payload interface
+interface EmailServicePayload {
+  to: string | string[];
+  subject: string;
+  from?: string;
+  html?: string;
+  template?: string;
+  data?: Record<string, unknown>;
+}
+
+// Send email via email-service API
+const sendToEmailService = async (payload: EmailServicePayload): Promise<boolean> => {
+  if (!config.email.serviceUrl || !config.email.apiKey) {
+    console.warn('Email service not configured');
+    return false;
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(`${config.email.serviceUrl}/api/send`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': config.email.apiKey,
+      },
+      body: JSON.stringify({
+        ...payload,
+        from: payload.from || config.email.from,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+    const result = (await response.json()) as { success?: boolean; messageId?: string; error?: string };
+
+    if (!response.ok) {
+      console.error('Email service error:', result);
+      return false;
+    }
+
+    console.log('Email sent successfully:', result.messageId);
+    return true;
+  } catch (error) {
+    console.error('Error calling email service:', error);
+    return false;
+  }
+};
 
 interface NotificationPayload {
   type: NotificationType;
@@ -106,34 +152,31 @@ export const sendPushNotification = async (
   }
 };
 
-// Send email notification
+// Send email notification (with custom HTML)
 export const sendEmailNotification = async (
   userEmail: string,
   subject: string,
   htmlContent: string
 ): Promise<boolean> => {
-  if (!resend) {
-    return false;
-  }
+  return sendToEmailService({
+    to: userEmail,
+    subject,
+    html: htmlContent,
+  });
+};
 
-  try {
-    const { error } = await resend.emails.send({
-      from: config.email.from,
-      to: userEmail,
-      subject,
-      html: htmlContent,
-    });
-
-    if (error) {
-      console.error('Error sending email:', error);
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    console.error('Error sending email:', error);
-    return false;
-  }
+// Send email notification using a template
+export const sendTemplateEmail = async (
+  userEmail: string,
+  templateId: string,
+  data: Record<string, unknown>
+): Promise<boolean> => {
+  return sendToEmailService({
+    to: userEmail,
+    subject: '', // Subject comes from the template
+    template: templateId,
+    data,
+  });
 };
 
 // Get user notification preferences
@@ -190,8 +233,11 @@ export const notifyUser = async (
   if (prefs.email && shouldSendEmail(payload.type)) {
     const email = await getUserEmail(userId);
     if (email) {
-      const htmlContent = generateEmailHtml(payload);
-      await sendEmailNotification(email, payload.title, htmlContent);
+      await sendTemplateEmail(email, 'lanpapp/lanpa-notification', {
+        title: payload.title,
+        body: payload.body,
+        actionLink: config.frontendUrl,
+      });
     }
   }
 };
@@ -229,34 +275,4 @@ const shouldSendEmail = (type: NotificationType): boolean => {
     NotificationType.LANPA_REMINDER,
   ];
   return emailTypes.includes(type);
-};
-
-// Generate email HTML content
-const generateEmailHtml = (payload: NotificationPayload): string => {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #4F46E5; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-        .content { background: #f9fafb; padding: 20px; border-radius: 0 0 8px 8px; }
-        .button { display: inline-block; background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 16px; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>${payload.title}</h1>
-        </div>
-        <div class="content">
-          <p>${payload.body}</p>
-          <a href="${config.frontendUrl}" class="button">Open LanpApp</a>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
 };
