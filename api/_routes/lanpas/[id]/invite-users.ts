@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import { MemberStatus, NotificationType } from '@lanpapp/shared';
+import { MemberStatus, NotificationType } from '../../../_lib/shared-types';
 import { cors, handleError, validate, authenticate, ForbiddenError, BadRequestError, notifyUsers } from '../../../_lib';
 import { db } from '../../../_lib/supabase';
 

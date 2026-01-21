@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import { PunishmentSeverity } from '@lanpapp/shared';
+import { PunishmentSeverity } from '../../_lib/shared-types';
 import { cors, handleError, validate, authenticate, BadRequestError, NotFoundError } from '../../_lib';
 import { db } from '../../_lib/supabase';
 

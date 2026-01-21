@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { NominationStatus, NotificationType } from '@lanpapp/shared';
+import { NominationStatus, NotificationType } from '../../../_lib/shared-types';
 import { cors, handleError, authenticate, BadRequestError, NotFoundError, notifyUser } from '../../../_lib';
 import { db } from '../../../_lib/supabase';
 

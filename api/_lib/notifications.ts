@@ -1,5 +1,5 @@
 import webPush from 'web-push';
-import { NotificationType, type User, type Notification } from '@lanpapp/shared';
+import { NotificationType, type User, type Notification } from './shared-types';
 import { db, supabaseAdmin } from './supabase';
 
 // Environment variables

@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import type { RegisterRequest, AuthResponse } from '@lanpapp/shared';
-import { isValidUsername, isValidPassword } from '@lanpapp/shared';
+import type { RegisterRequest, AuthResponse } from '../../_lib/shared-types';
+import { isValidUsername, isValidPassword } from '../../_lib/shared-utils';
 import { cors, handleError, validate, BadRequestError, ConflictError } from '../../_lib';
 import { supabaseAdmin, db } from '../../_lib/supabase';
 

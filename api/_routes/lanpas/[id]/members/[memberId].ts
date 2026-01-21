@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { MemberStatus } from '@lanpapp/shared';
+import { MemberStatus } from '../../../../_lib/shared-types';
 import { cors, handleError, authenticate, ForbiddenError, NotFoundError, BadRequestError } from '../../../../_lib';
 import { db } from '../../../../_lib/supabase';
 

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import { isValidPassword } from '@lanpapp/shared';
+import { isValidPassword } from '../../_lib/shared-utils';
 import { cors, handleError, validate, BadRequestError } from '../../_lib';
 import { supabaseAdmin } from '../../_lib/supabase';
 

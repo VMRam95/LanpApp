@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getRandomItem } from '@lanpapp/shared';
+import { getRandomItem } from '../../_lib/shared-utils';
 import { cors, handleError, authenticate, BadRequestError, NotFoundError } from '../../_lib';
 import { db } from '../../_lib/supabase';
 

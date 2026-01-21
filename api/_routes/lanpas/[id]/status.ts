@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import { LanpaStatus, MemberStatus, NotificationType, type GameVoteResult } from '@lanpapp/shared';
-import { getRandomItem } from '@lanpapp/shared';
+import { LanpaStatus, MemberStatus, NotificationType, type GameVoteResult } from '../../../_lib/shared-types';
+import { getRandomItem } from '../../../_lib/shared-utils';
 import { cors, handleError, validate, authenticate, NotFoundError, ForbiddenError, BadRequestError, notifyUsers } from '../../../_lib';
 import { db } from '../../../_lib/supabase';
 

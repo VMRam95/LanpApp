@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import { LanpaStatus, MemberStatus, type CreateLanpaRequest } from '@lanpapp/shared';
+import { LanpaStatus, MemberStatus, type CreateLanpaRequest } from '../../_lib/shared-types';
 import { cors, handleError, validate, authenticate, BadRequestError } from '../../_lib';
 import { db } from '../../_lib/supabase';
 

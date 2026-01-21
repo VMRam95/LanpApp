@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { MemberStatus, type GameVoteResult } from '@lanpapp/shared';
-import { getRandomItem } from '@lanpapp/shared';
+import { MemberStatus, type GameVoteResult } from '../../../_lib/shared-types';
+import { getRandomItem } from '../../../_lib/shared-utils';
 import { cors, handleError, authenticate, ForbiddenError, BadRequestError } from '../../../_lib';
 import { db } from '../../../_lib/supabase';
 

@@ -1,5 +1,5 @@
 import type { VercelRequest } from '@vercel/node';
-import type { User } from '@lanpapp/shared';
+import type { User } from './shared-types';
 import { supabaseAdmin } from './supabase';
 import { UnauthorizedError } from './errors';
 

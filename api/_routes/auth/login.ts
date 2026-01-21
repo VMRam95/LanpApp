@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import type { LoginRequest, AuthResponse } from '@lanpapp/shared';
+import type { LoginRequest, AuthResponse } from '../../_lib/shared-types';
 import { cors, handleError, validate, UnauthorizedError } from '../../_lib';
 import { supabaseAdmin, db } from '../../_lib/supabase';
 
