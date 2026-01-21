@@ -6,7 +6,7 @@ import {
   TrashIcon,
   CheckIcon,
 } from '@heroicons/react/24/outline';
-import { Button, Modal, ModalFooter } from '../ui';
+import { Button, ConfirmDeleteModal } from '../ui';
 import type { LanpaWithRelations } from '@lanpapp/shared';
 
 interface LanpaSettingsProps {
@@ -87,22 +87,14 @@ export function LanpaSettings({
       </div>
 
       {/* Delete confirmation modal */}
-      <Modal
+      <ConfirmDeleteModal
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
         title={t('lanpas.lanpaSettings.deleteLanpa')}
-        size="sm"
-      >
-        <p className="text-gray-500">{t('lanpas.lanpaSettings.deleteConfirm')}</p>
-        <ModalFooter>
-          <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>
-            {t('common.cancel')}
-          </Button>
-          <Button variant="danger" onClick={handleDelete} isLoading={isDeleting}>
-            {t('common.delete')}
-          </Button>
-        </ModalFooter>
-      </Modal>
+        message={t('lanpas.lanpaSettings.deleteConfirm')}
+        isLoading={isDeleting}
+      />
     </>
   );
 }

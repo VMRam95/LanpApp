@@ -10,7 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 import { StarIcon } from '@heroicons/react/24/outline';
-import { Card, CardHeader, Button } from '../components/ui';
+import { Card, CardHeader, Button, LoadingSpinner } from '../components/ui';
 import { api } from '../services/api';
 import type { GameWithStats } from '@lanpapp/shared';
 
@@ -65,11 +65,7 @@ export function GameDetail() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
-      </div>
-    );
+    return <LoadingSpinner fullPage />;
   }
 
   if (!game) {

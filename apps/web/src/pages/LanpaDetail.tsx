@@ -17,11 +17,12 @@ import {
   ExclamationTriangleIcon,
   ChartBarIcon,
 } from '@heroicons/react/24/outline';
-import { Card, CardHeader, Button, Modal, ModalFooter, Input, Textarea } from '../components/ui';
+import { Card, CardHeader, Button, Modal, ModalFooter, Input, Textarea, LoadingSpinner, ConfirmDeleteModal } from '../components/ui';
 import { GameCard, GameCardCompact } from '../components/GameCard';
 import { AdminPanel } from '../components/admin';
 import { api } from '../services/api';
 import { useAuthStore } from '../store/auth.store';
+import { getLanpaStatusColor } from '../lib/statusColors';
 import {
   useLanpa,
   useUpdateLanpa,
@@ -142,23 +143,6 @@ export function LanpaDetail() {
     (g: Game) => !lanpa?.game_suggestions?.some((s) => s.game_id === g.id)
   );
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft':
-        return 'bg-gray-100 text-gray-700';
-      case 'voting_games':
-        return 'bg-yellow-100 text-yellow-700';
-      case 'voting_active':
-        return 'bg-blue-100 text-blue-700';
-      case 'in_progress':
-        return 'bg-purple-100 text-purple-700';
-      case 'completed':
-        return 'bg-green-100 text-green-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
-    }
-  };
-
   const copyInviteLink = async () => {
     try {
       const response = await api.post<{ data: { link: string } }>(
@@ -278,11 +262,7 @@ export function LanpaDetail() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
-      </div>
-    );
+    return <LoadingSpinner fullPage />;
   }
 
   if (!lanpa) {
@@ -311,7 +291,7 @@ export function LanpaDetail() {
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold text-gray-900">{lanpa.name}</h1>
               <span
-                className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(lanpa.status)}`}
+                className={`px-3 py-1 text-sm font-medium rounded-full ${getLanpaStatusColor(lanpa.status)}`}
               >
                 {t(`lanpas.statuses.${lanpa.status}`)}
               </span>
@@ -777,29 +757,14 @@ export function LanpaDetail() {
       )}
 
       {/* Delete Modal */}
-      <Modal
+      <ConfirmDeleteModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => deleteMutation.mutate(id!, { onSuccess: () => navigate('/lanpas') })}
         title="Delete Lanpa"
-        size="sm"
-      >
-        <p className="text-gray-500">
-          Are you sure you want to delete this lanpa? This action cannot be
-          undone.
-        </p>
-        <ModalFooter>
-          <Button variant="secondary" onClick={() => setIsDeleteModalOpen(false)}>
-            {t('common.cancel')}
-          </Button>
-          <Button
-            variant="danger"
-            onClick={() => deleteMutation.mutate(id!, { onSuccess: () => navigate('/lanpas') })}
-            isLoading={deleteMutation.isPending}
-          >
-            {t('common.delete')}
-          </Button>
-        </ModalFooter>
-      </Modal>
+        message="Are you sure you want to delete this lanpa? This action cannot be undone."
+        isLoading={deleteMutation.isPending}
+      />
 
       {/* Edit Modal */}
       <Modal

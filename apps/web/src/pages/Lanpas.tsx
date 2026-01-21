@@ -2,14 +2,16 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { PlusIcon, CalendarIcon, UserGroupIcon } from '@heroicons/react/24/outline';
-import { Card, Button, Input, Textarea, Modal, ModalFooter } from '../components/ui';
+import { Card, Button, Input, Textarea, Modal, ModalFooter, Pagination, LoadingSpinner, PageHeader } from '../components/ui';
 import { useLanpas, useCreateLanpa } from '../hooks/useLanpas';
+import { getLanpaStatusColor } from '../lib/statusColors';
 import type { CreateLanpaRequest, Lanpa } from '@lanpapp/shared';
 
 export function Lanpas() {
   const { t } = useTranslation();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState<CreateLanpaRequest>({
     name: '',
     description: '',
@@ -26,7 +28,7 @@ export function Lanpas() {
     return undefined;
   };
 
-  const { data, isLoading } = useLanpas({ status: getStatusFilter() });
+  const { data, isLoading } = useLanpas({ status: getStatusFilter(), page: currentPage, limit: 12 });
   const createMutation = useCreateLanpa();
 
   const handleCreateSubmit = (e: React.FormEvent) => {
@@ -50,45 +52,28 @@ export function Lanpas() {
     );
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft':
-        return 'bg-gray-100 text-gray-700';
-      case 'voting_games':
-        return 'bg-yellow-100 text-yellow-700';
-      case 'voting_active':
-        return 'bg-blue-100 text-blue-700';
-      case 'in_progress':
-        return 'bg-purple-100 text-purple-700';
-      case 'completed':
-        return 'bg-green-100 text-green-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
-    }
-  };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('lanpas.title')}</h1>
-          <p className="text-gray-500 mt-1">Organize and join LAN parties</p>
-        </div>
-        <Button
-          leftIcon={<PlusIcon className="h-5 w-5" />}
-          onClick={() => setIsCreateModalOpen(true)}
-        >
-          {t('lanpas.createNew')}
-        </Button>
-      </div>
+      <PageHeader
+        title={t('lanpas.title')}
+        subtitle="Organize and join LAN parties"
+        action={
+          <Button
+            leftIcon={<PlusIcon className="h-5 w-5" />}
+            onClick={() => setIsCreateModalOpen(true)}
+          >
+            {t('lanpas.createNew')}
+          </Button>
+        }
+      />
 
       {/* Filter Tabs */}
       <div className="flex gap-2 border-b border-gray-200">
         {(['all', 'upcoming', 'past'] as const).map((tab) => (
           <button
             key={tab}
-            onClick={() => setFilter(tab)}
+            onClick={() => { setFilter(tab); setCurrentPage(1); }}
             className={`
               px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors
               ${
@@ -105,10 +90,9 @@ export function Lanpas() {
 
       {/* Lanpas Grid */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
-        </div>
+        <LoadingSpinner fullPage />
       ) : data?.data && data.data.length > 0 ? (
+        <>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {data.data.map((lanpa: Lanpa) => (
             <Link key={lanpa.id} to={`/lanpas/${lanpa.id}`}>
@@ -118,7 +102,7 @@ export function Lanpas() {
                     {lanpa.name}
                   </h3>
                   <span
-                    className={`px-2.5 py-1 text-xs font-medium rounded-full whitespace-nowrap ml-2 ${getStatusColor(lanpa.status)}`}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-full whitespace-nowrap ml-2 ${getLanpaStatusColor(lanpa.status)}`}
                   >
                     {t(`lanpas.statuses.${lanpa.status}`)}
                   </span>
@@ -148,6 +132,16 @@ export function Lanpas() {
             </Link>
           ))}
         </div>
+        {data?.pagination && (
+          <Pagination
+            currentPage={data.pagination.page}
+            totalPages={data.pagination.totalPages}
+            totalItems={data.pagination.total}
+            itemsPerPage={data.pagination.limit}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        )}
+        </>
       ) : (
         <Card className="text-center py-12">
           <CalendarIcon className="h-12 w-12 text-gray-300 mx-auto" />

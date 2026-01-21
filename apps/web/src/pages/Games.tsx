@@ -10,7 +10,7 @@ import {
   TrashIcon,
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
-import { Card, Button, Input, Textarea, Modal, ModalFooter } from '../components/ui';
+import { Card, Button, Input, Textarea, Modal, ModalFooter, Pagination, LoadingSpinner, ConfirmDeleteModal, PageHeader } from '../components/ui';
 import { useGames, useCreateGame, useUpdateGame, useDeleteGame } from '../hooks/useGames';
 import type { GameWithStats, CreateGameRequest, UpdateGameRequest } from '@lanpapp/shared';
 
@@ -22,6 +22,7 @@ export function Games() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedGame, setSelectedGame] = useState<GameWithStats | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState<CreateGameRequest>({
     name: '',
     description: '',
@@ -31,7 +32,7 @@ export function Games() {
     cover_url: '',
   });
 
-  const { data, isLoading } = useGames({ search: searchQuery || undefined });
+  const { data, isLoading } = useGames({ search: searchQuery || undefined, page: currentPage, limit: 12 });
   const createMutation = useCreateGame();
   const updateMutation = useUpdateGame();
   const deleteMutation = useDeleteGame();
@@ -263,19 +264,18 @@ export function Games() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('games.title')}</h1>
-          <p className="text-gray-500 mt-1">Browse and add games for your lanpas</p>
-        </div>
-        <Button
-          leftIcon={<PlusIcon className="h-5 w-5" />}
-          onClick={() => setIsCreateModalOpen(true)}
-        >
-          {t('games.addNew')}
-        </Button>
-      </div>
+      <PageHeader
+        title={t('games.title')}
+        subtitle="Browse and add games for your lanpas"
+        action={
+          <Button
+            leftIcon={<PlusIcon className="h-5 w-5" />}
+            onClick={() => setIsCreateModalOpen(true)}
+          >
+            {t('games.addNew')}
+          </Button>
+        }
+      />
 
       {/* Search */}
       <div className="relative">
@@ -284,17 +284,16 @@ export function Games() {
           type="text"
           placeholder={t('common.search')}
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
           className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
         />
       </div>
 
       {/* Games Grid */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
-        </div>
+        <LoadingSpinner fullPage />
       ) : data?.data && data.data.length > 0 ? (
+        <>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {data.data.map((game: GameWithStats) => (
             <Card
@@ -371,6 +370,16 @@ export function Games() {
             </Card>
           ))}
         </div>
+        {data?.pagination && (
+          <Pagination
+            currentPage={data.pagination.page}
+            totalPages={data.pagination.totalPages}
+            totalItems={data.pagination.total}
+            itemsPerPage={data.pagination.limit}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        )}
+        </>
       ) : (
         <Card className="text-center py-12">
           <PlayIcon className="h-12 w-12 text-gray-300 mx-auto" />
@@ -420,39 +429,17 @@ export function Games() {
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <ConfirmDeleteModal
         isOpen={isDeleteModalOpen}
         onClose={() => {
           setIsDeleteModalOpen(false);
           setSelectedGame(null);
         }}
+        onConfirm={handleConfirmDelete}
         title={t('games.deleteGame')}
-        size="sm"
-      >
-        <div className="space-y-4">
-          <p className="text-gray-600">
-            {t('games.deleteConfirmation', { name: selectedGame?.name })}
-          </p>
-          <ModalFooter>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setIsDeleteModalOpen(false);
-                setSelectedGame(null);
-              }}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button
-              variant="danger"
-              onClick={handleConfirmDelete}
-              isLoading={deleteMutation.isPending}
-            >
-              {t('common.delete')}
-            </Button>
-          </ModalFooter>
-        </div>
-      </Modal>
+        message={t('games.deleteConfirmation', { name: selectedGame?.name })}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

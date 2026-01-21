@@ -5,8 +5,9 @@ import {
   UserMinusIcon,
   EllipsisVerticalIcon,
 } from '@heroicons/react/24/outline';
-import { Button, Modal, ModalFooter } from '../ui';
+import { Button, ConfirmDeleteModal } from '../ui';
 import { UserAvatar } from '../UserAvatar';
+import { getMemberStatusColor } from '../../lib/statusColors';
 import type { LanpaMember } from '@lanpapp/shared';
 
 interface MemberManagementProps {
@@ -30,19 +31,6 @@ export function MemberManagement({
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return 'bg-green-100 text-green-700';
-      case 'attended':
-        return 'bg-blue-100 text-blue-700';
-      case 'declined':
-        return 'bg-red-100 text-red-700';
-      default:
-        return 'bg-yellow-100 text-yellow-700';
-    }
-  };
 
   const handleRemoveClick = (memberId: string) => {
     const member = members.find((m) => m.id === memberId);
@@ -91,7 +79,7 @@ export function MemberManagement({
               </div>
 
               <div className="flex items-center gap-2">
-                <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(member.status)}`}>
+                <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${getMemberStatusColor(member.status)}`}>
                   {member.status}
                 </span>
 
@@ -148,31 +136,18 @@ export function MemberManagement({
       </div>
 
       {/* Remove confirmation modal */}
-      <Modal
+      <ConfirmDeleteModal
         isOpen={showRemoveConfirm}
         onClose={() => {
           setShowRemoveConfirm(false);
           setSelectedMemberId(null);
         }}
+        onConfirm={handleConfirmRemove}
         title={t('lanpas.memberManagement.removeMember')}
-        size="sm"
-      >
-        <p className="text-gray-500">{t('lanpas.memberManagement.removeConfirm')}</p>
-        <ModalFooter>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setShowRemoveConfirm(false);
-              setSelectedMemberId(null);
-            }}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button variant="danger" onClick={handleConfirmRemove} isLoading={isRemoving}>
-            {t('lanpas.memberManagement.removeMember')}
-          </Button>
-        </ModalFooter>
-      </Modal>
+        message={t('lanpas.memberManagement.removeConfirm')}
+        isLoading={isRemoving}
+        confirmText={t('lanpas.memberManagement.removeMember')}
+      />
     </>
   );
 }

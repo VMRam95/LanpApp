@@ -7,14 +7,16 @@ import {
   ShieldExclamationIcon,
   NoSymbolIcon,
 } from '@heroicons/react/24/outline';
-import { Card, CardHeader, Button, Input, Textarea, Modal, ModalFooter } from '../components/ui';
+import { Card, CardHeader, Button, Input, Textarea, Modal, ModalFooter, Pagination, LoadingSpinner, PageHeader } from '../components/ui';
 import { usePunishments, useCreatePunishment } from '../hooks/usePunishments';
 import { api } from '../services/api';
+import { getSeverityColor } from '../lib/statusColors';
 import type { CreatePunishmentRequest, GlobalStats, Punishment } from '@lanpapp/shared';
 
 export function Punishments() {
   const { t } = useTranslation();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState<CreatePunishmentRequest>({
     name: '',
     description: '',
@@ -22,7 +24,7 @@ export function Punishments() {
     point_impact: 0,
   });
 
-  const { data: punishments, isLoading: punishmentsLoading } = usePunishments();
+  const { data: punishments, isLoading: punishmentsLoading } = usePunishments({ page: currentPage, limit: 10 });
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['global-stats'],
@@ -62,40 +64,22 @@ export function Punishments() {
     }
   };
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'warning':
-        return 'bg-yellow-100 text-yellow-700';
-      case 'penalty':
-        return 'bg-orange-100 text-orange-700';
-      case 'suspension':
-        return 'bg-red-100 text-red-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
-    }
-  };
-
   const isLoading = punishmentsLoading || statsLoading;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            {t('punishments.title')}
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Manage punishments and view the hall of shame
-          </p>
-        </div>
-        <Button
-          leftIcon={<PlusIcon className="h-5 w-5" />}
-          onClick={() => setIsCreateModalOpen(true)}
-        >
-          {t('punishments.createNew')}
-        </Button>
-      </div>
+      <PageHeader
+        title={t('punishments.title')}
+        subtitle="Manage punishments and view the hall of shame"
+        action={
+          <Button
+            leftIcon={<PlusIcon className="h-5 w-5" />}
+            onClick={() => setIsCreateModalOpen(true)}
+          >
+            {t('punishments.createNew')}
+          </Button>
+        }
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Punishments List */}
@@ -107,10 +91,9 @@ export function Punishments() {
               </h2>
             </div>
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
-              </div>
+              <LoadingSpinner size="sm" fullPage />
             ) : punishments?.data && punishments.data.length > 0 ? (
+              <>
               <div className="divide-y divide-gray-200">
                 {punishments.data.map((punishment: Punishment) => (
                   <div
@@ -143,6 +126,16 @@ export function Punishments() {
                   </div>
                 ))}
               </div>
+              {punishments?.pagination && (
+                <Pagination
+                  currentPage={punishments.pagination.page}
+                  totalPages={punishments.pagination.totalPages}
+                  totalItems={punishments.pagination.total}
+                  itemsPerPage={punishments.pagination.limit}
+                  onPageChange={(page) => setCurrentPage(page)}
+                />
+              )}
+              </>
             ) : (
               <div className="p-6 text-center text-gray-500">
                 {t('punishments.noPunishments')}
