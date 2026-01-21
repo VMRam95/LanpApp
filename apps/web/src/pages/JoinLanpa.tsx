@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
@@ -10,11 +10,12 @@ export function JoinLanpa() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const joinMutation = useJoinLanpa();
-  const [hasAttempted, setHasAttempted] = useState(false);
+  const hasAttemptedRef = useRef(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    if (token && !hasAttempted) {
-      setHasAttempted(true);
+    if (token && !hasAttemptedRef.current) {
+      hasAttemptedRef.current = true;
       joinMutation.mutate(token, {
         onSuccess: (lanpa) => {
           // Redirect to the lanpa after a short delay to show success message
@@ -24,7 +25,7 @@ export function JoinLanpa() {
         },
       });
     }
-  }, [token, hasAttempted, joinMutation, navigate]);
+  }, [token, retryCount]);
 
   // Loading state
   if (joinMutation.isPending) {
@@ -84,8 +85,9 @@ export function JoinLanpa() {
               {t('lanpas.goToLanpas')}
             </Button>
             <Button onClick={() => {
-              setHasAttempted(false);
+              hasAttemptedRef.current = false;
               joinMutation.reset();
+              setRetryCount((c) => c + 1);
             }}>
               {t('common.retry')}
             </Button>

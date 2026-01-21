@@ -701,13 +701,18 @@ lanpasRouter.post('/join/:token', authenticate, async (req, res, next) => {
       }
     } else {
       // Create new member
-      await db()
+      const { error: insertError } = await db()
         .from('lanpa_members')
         .insert({
           lanpa_id: invitation.lanpa_id,
           user_id: req.userId,
           status: MemberStatus.CONFIRMED,
         });
+
+      if (insertError) {
+        console.error('Failed to add member via invite link:', insertError);
+        throw new BadRequestError('Failed to join lanpa. Please try again.');
+      }
     }
 
     // Increment uses
