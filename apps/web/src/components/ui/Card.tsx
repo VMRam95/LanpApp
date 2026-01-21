@@ -4,6 +4,7 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   padding?: 'none' | 'sm' | 'md' | 'lg';
   hoverable?: boolean;
+  allowOverflow?: boolean;
 }
 
 const paddingStyles = {
@@ -17,13 +18,14 @@ export function Card({
   children,
   padding = 'md',
   hoverable = false,
+  allowOverflow = false,
   className = '',
   ...props
 }: CardProps) {
   return (
     <div
       className={`
-        bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden
+        bg-white rounded-xl shadow-sm border border-gray-200 ${allowOverflow ? '' : 'overflow-hidden'}
         ${paddingStyles[padding]}
         ${hoverable ? 'hover:shadow-md transition-shadow duration-200 cursor-pointer' : ''}
         ${className}
