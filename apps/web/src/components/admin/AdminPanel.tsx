@@ -105,7 +105,7 @@ export function AdminPanel({
   };
 
   return (
-    <Card padding="none" className="overflow-hidden">
+    <Card padding="none">
       {/* Header */}
       <div className="px-6 pt-6 pb-2">
         <CardHeader
