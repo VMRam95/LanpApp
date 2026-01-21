@@ -5,7 +5,7 @@ import {
   UserMinusIcon,
   EllipsisVerticalIcon,
 } from '@heroicons/react/24/outline';
-import { Button, ConfirmDeleteModal } from '../ui';
+import { ConfirmDeleteModal } from '../ui';
 import { UserAvatar } from '../UserAvatar';
 import { getMemberStatusColor } from '../../lib/statusColors';
 import type { LanpaMember } from '@lanpapp/shared';
