@@ -21,7 +21,22 @@ const app: Application = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: config.frontendUrl,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      // In development, allow any localhost port
+      if (config.nodeEnv === 'development' && origin.match(/^http:\/\/localhost:\d+$/)) {
+        return callback(null, true);
+      }
+
+      // In production, only allow the configured frontend URL
+      if (origin === config.frontendUrl) {
+        return callback(null, true);
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );
