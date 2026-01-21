@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Game, GameWithStats, CreateGameRequest, UpdateGameRequest } from '@lanpapp/shared';
 import { api } from '../services/api';
+import { showToast, toastMessages } from '../lib/toast';
+import { useLoadingOverlay } from '../components/ui';
 
 // Query keys
 export const gameKeys = {
@@ -85,15 +87,23 @@ export function useRandomGame(filters?: { genre?: string; min_players?: number; 
 // Create game
 export function useCreateGame() {
   const queryClient = useQueryClient();
+  const { showLoading, hideLoading } = useLoadingOverlay();
 
   return useMutation({
     mutationFn: async (data: CreateGameRequest) => {
+      showLoading('Creating game...');
       const response = await api.post<{ data: Game }>('/games', data);
       return response.data.data;
     },
     onSuccess: () => {
+      hideLoading();
       queryClient.invalidateQueries({ queryKey: gameKeys.lists() });
       queryClient.invalidateQueries({ queryKey: gameKeys.genres() });
+      showToast.success(toastMessages.created('Game'));
+    },
+    onError: () => {
+      hideLoading();
+      showToast.error(toastMessages.error('create game'));
     },
   });
 }
@@ -101,16 +111,24 @@ export function useCreateGame() {
 // Update game
 export function useUpdateGame() {
   const queryClient = useQueryClient();
+  const { showLoading, hideLoading } = useLoadingOverlay();
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UpdateGameRequest }) => {
+      showLoading('Updating game...');
       const response = await api.patch<{ data: Game }>(`/games/${id}`, data);
       return response.data.data;
     },
     onSuccess: (data) => {
+      hideLoading();
       queryClient.invalidateQueries({ queryKey: gameKeys.detail(data.id) });
       queryClient.invalidateQueries({ queryKey: gameKeys.lists() });
       queryClient.invalidateQueries({ queryKey: gameKeys.genres() });
+      showToast.success(toastMessages.updated('Game'));
+    },
+    onError: () => {
+      hideLoading();
+      showToast.error(toastMessages.error('update game'));
     },
   });
 }
@@ -118,15 +136,23 @@ export function useUpdateGame() {
 // Delete game
 export function useDeleteGame() {
   const queryClient = useQueryClient();
+  const { showLoading, hideLoading } = useLoadingOverlay();
 
   return useMutation({
     mutationFn: async (id: string) => {
+      showLoading('Deleting game...');
       await api.delete(`/games/${id}`);
       return id;
     },
     onSuccess: () => {
+      hideLoading();
       queryClient.invalidateQueries({ queryKey: gameKeys.lists() });
       queryClient.invalidateQueries({ queryKey: gameKeys.genres() });
+      showToast.success(toastMessages.deleted('Game'));
+    },
+    onError: () => {
+      hideLoading();
+      showToast.error(toastMessages.error('delete game'));
     },
   });
 }
@@ -134,15 +160,23 @@ export function useDeleteGame() {
 // Upload game cover
 export function useUploadGameCover() {
   const queryClient = useQueryClient();
+  const { showLoading, hideLoading } = useLoadingOverlay();
 
   return useMutation({
     mutationFn: async ({ id, image, contentType }: { id: string; image: string; contentType: string }) => {
+      showLoading('Uploading cover...');
       const response = await api.post<{ data: Game }>(`/games/${id}/cover`, { image, contentType });
       return response.data.data;
     },
     onSuccess: (data) => {
+      hideLoading();
       queryClient.invalidateQueries({ queryKey: gameKeys.detail(data.id) });
       queryClient.invalidateQueries({ queryKey: gameKeys.lists() });
+      showToast.success('Game cover uploaded successfully');
+    },
+    onError: () => {
+      hideLoading();
+      showToast.error(toastMessages.error('upload game cover'));
     },
   });
 }
