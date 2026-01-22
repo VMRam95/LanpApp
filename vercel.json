@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "pnpm run build:vercel && pnpm run build",
+  "buildCommand": "pnpm --filter @lanpapp/shared run build && pnpm run build:vercel && pnpm run build",
   "installCommand": "pnpm install",
   "outputDirectory": "apps/web/dist",
   "framework": null,
