@@ -4,9 +4,10 @@
   "private": true,
   "packageManager": "pnpm@9.0.0",
   "scripts": {
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --filter=@lanpapp/web",
+    "dev:api": "vercel dev --listen 3001",
+    "dev:all": "concurrently \"pnpm dev:api\" \"pnpm dev\"",
     "build": "turbo run build",
-    "build:vercel": "cd apps/api && pnpm run build:vercel",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "clean": "turbo run clean && rm -rf node_modules",
@@ -23,6 +24,7 @@
     "@types/node": "^20.0.0",
     "@vercel/node": "^3.0.0",
     "@types/web-push": "^3.6.0",
+    "concurrently": "^9.0.0",
     "turbo": "^2.0.0",
     "typescript": "^5.4.0"
   },
