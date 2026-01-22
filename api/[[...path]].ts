@@ -1,3 +1,4 @@
+// Vercel Serverless API Router - Handles all /api/* routes
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { cors, handleError } from './_lib';
 
