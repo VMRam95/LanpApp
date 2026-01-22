@@ -1,0 +1,12 @@
+# Ignore local environment files
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+
+# Local development
+apps/web/.env
+apps/web/.env.*
