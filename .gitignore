@@ -29,8 +29,8 @@ dist/
 build/
 *.log
 .turbo/
-api/app.bundle.mjs
-api/app.bundle.mjs.map
+api/app.bundle.js
+api/app.bundle.js.map
 
 # Testing
 coverage/

@@ -9,8 +9,8 @@ await esbuild.build({
   bundle: true,
   platform: 'node',
   target: 'node20',
-  format: 'esm',
-  outfile: join(__dirname, '../../api/app.bundle.mjs'),
+  format: 'cjs',
+  outfile: join(__dirname, '../../api/app.bundle.js'),
   external: [
     // Node built-ins
     'crypto',
@@ -32,12 +32,6 @@ await esbuild.build({
     // Keep external for Vercel to resolve
     '@supabase/supabase-js',
   ],
-  banner: {
-    js: `
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-`,
-  },
   define: {
     'process.env.NODE_ENV': '"production"',
   },
@@ -45,4 +39,4 @@ const require = createRequire(import.meta.url);
   sourcemap: true,
 });
 
-console.log('API bundle created at api/app.bundle.mjs');
+console.log('API bundle created at api/app.bundle.js');
