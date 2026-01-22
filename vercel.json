@@ -1,10 +1,14 @@
 {
   "version": 2,
-  "buildCommand": "pnpm run build",
+  "buildCommand": "pnpm run build:vercel && pnpm run build",
   "installCommand": "pnpm install",
   "outputDirectory": "apps/web/dist",
   "framework": null,
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
     {
       "source": "/((?!api|assets|favicon.ico).*)",
       "destination": "/index.html"
