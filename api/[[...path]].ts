@@ -263,6 +263,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const url = req.url || '';
   const path = url.split('?')[0];
 
+  // Debug logging
+  console.log('Router received:', { url, path, method: req.method });
+
   // Find matching route
   for (const route of routes) {
     const match = path.match(route.pattern);
