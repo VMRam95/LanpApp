@@ -5,6 +5,8 @@ import { isValidUsername, isValidPassword } from '@lanpapp/shared';
 import { supabaseAdmin, db } from '../services/supabase.service.js';
 import { validate } from '../middleware/validate.middleware.js';
 import { BadRequestError, ConflictError, UnauthorizedError } from '../middleware/error.middleware.js';
+import { sendTemplateEmail } from '../services/notification.service.js';
+import { config } from '../config/index.js';
 
 export const authRouter: Router = Router();
 
@@ -95,6 +97,12 @@ authRouter.post('/register', validate(registerSchema), async (req, res, next) =>
       throw new BadRequestError('Failed to create user profile');
     }
 
+    // Send welcome email (non-blocking)
+    sendTemplateEmail(email, 'lanpapp/lanpapp-welcome', {
+      username,
+      email,
+    }).catch((err) => console.error('Error sending welcome email:', err));
+
     // Sign in to get session
     const { data: session, error: sessionError } = await supabaseAdmin.auth.signInWithPassword({
       email,
@@ -178,43 +186,32 @@ authRouter.post('/logout', async (req, res, next) => {
 authRouter.post('/forgot-password', validate(forgotPasswordSchema), async (req, res, next) => {
   try {
     const { email } = req.body;
-    const isDevelopment = process.env.NODE_ENV === 'development';
 
-    if (isDevelopment) {
-      // In development, generate the link directly without sending email
-      const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'recovery',
-        email,
-        options: {
-          redirectTo: `${process.env.FRONTEND_URL}/reset-password`,
-        },
-      });
+    // Generate reset link via Supabase
+    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'recovery',
+      email,
+      options: {
+        redirectTo: `${config.frontendUrl}/reset-password`,
+      },
+    });
 
-      if (error) {
-        console.error('Password reset error:', error);
-        // Still return success to prevent email enumeration
-        res.json({ message: 'If the email exists, a password reset link has been sent' });
-        return;
-      }
+    if (error) {
+      console.error('Password reset error:', error);
+      // Still return success to prevent email enumeration
+      res.json({ message: 'If the email exists, a password reset link has been sent' });
+      return;
+    }
 
-      // Return the link for development testing
-      const resetUrl = data.properties?.action_link;
-      res.json({
-        message: 'Development mode: Reset link generated',
+    // Send email via email-service
+    const resetUrl = data.properties?.action_link;
+    if (resetUrl) {
+      await sendTemplateEmail(email, 'lanpapp/lanpapp-reset-password', {
         resetUrl,
       });
-    } else {
-      // In production, send email via Supabase
-      const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
-        redirectTo: `${process.env.FRONTEND_URL}/reset-password`,
-      });
-
-      if (error) {
-        console.error('Password reset error:', error);
-      }
-
-      res.json({ message: 'If the email exists, a password reset link has been sent' });
     }
+
+    res.json({ message: 'If the email exists, a password reset link has been sent' });
   } catch (error) {
     next(error);
   }

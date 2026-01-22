@@ -4,6 +4,7 @@ import type { RegisterRequest, AuthResponse } from '../../_lib/shared-types';
 import { isValidUsername, isValidPassword } from '../../_lib/shared-utils';
 import { cors, handleError, validate, BadRequestError, ConflictError } from '../../_lib';
 import { supabaseAdmin, db } from '../../_lib/supabase';
+import { sendTemplateEmail } from '../../_lib/notifications';
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -79,6 +80,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
       throw new BadRequestError('Failed to create user profile');
     }
+
+    // Send welcome email (non-blocking)
+    sendTemplateEmail(email, 'lanpapp/lanpapp-welcome', {
+      username,
+      email,
+    }).catch((err) => console.error('Error sending welcome email:', err));
 
     // Sign in to get session
     const { data: session, error: sessionError } = await supabaseAdmin.auth.signInWithPassword({
