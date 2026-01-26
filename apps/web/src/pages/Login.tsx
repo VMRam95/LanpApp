@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Input, Card } from '../components/ui';
 import { useAuth } from '../hooks/useAuth';
@@ -9,6 +9,8 @@ export function Login() {
   const { t } = useTranslation();
   const { login, error, fieldErrors, clearError } = useAuth();
   const { isAuthenticated, isLoading } = useAuthStore();
+  const location = useLocation();
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -16,7 +18,7 @@ export function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={from} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,7 +27,7 @@ export function Login() {
     clearError();
 
     try {
-      await login(formData.email, formData.password);
+      await login(formData.email, formData.password, from);
     } finally {
       setIsSubmitting(false);
     }
@@ -116,6 +118,7 @@ export function Login() {
               {t('auth.noAccount')}{' '}
               <Link
                 to="/register"
+                state={{ from: location.state?.from }}
                 className="font-medium text-primary-600 hover:text-primary-700"
               >
                 {t('auth.register')}

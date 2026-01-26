@@ -19,10 +19,10 @@ export function useAuth() {
   } = useAuthStore();
 
   const login = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string, redirectTo?: string) => {
       try {
         await storeLogin(email, password);
-        navigate('/dashboard');
+        navigate(redirectTo || '/dashboard');
       } catch (error) {
         if (error instanceof Error) {
           showToast.error(error.message);
@@ -33,15 +33,18 @@ export function useAuth() {
   );
 
   const register = useCallback(
-    async (data: {
-      email: string;
-      password: string;
-      username: string;
-      display_name?: string;
-    }) => {
+    async (
+      data: {
+        email: string;
+        password: string;
+        username: string;
+        display_name?: string;
+      },
+      redirectTo?: string
+    ) => {
       try {
         await storeRegister(data);
-        navigate('/dashboard');
+        navigate(redirectTo || '/dashboard');
       } catch (error) {
         if (error instanceof Error) {
           showToast.error(error.message);
