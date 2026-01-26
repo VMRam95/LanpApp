@@ -35,13 +35,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.json({ message: 'If the email exists, a password reset link has been sent' });
     }
 
-    const resetUrl = data.properties?.action_link;
+    const supabaseResetUrl = data.properties?.action_link;
+
+    // Extract token from Supabase URL and create LanpApp URL
+    let resetUrl = supabaseResetUrl;
+    if (supabaseResetUrl) {
+      try {
+        const url = new URL(supabaseResetUrl);
+        const token = url.searchParams.get('token');
+        if (token) {
+          // Use LanpApp proxy URL to hide Supabase URL
+          resetUrl = `${frontendUrl}/api/auth/verify-reset?token=${token}`;
+        }
+      } catch {
+        // If URL parsing fails, fall back to original URL
+        console.warn('Failed to parse Supabase reset URL, using original');
+      }
+    }
 
     if (isDevelopment) {
       // In development, return the link directly for testing
       return res.json({
         message: 'Development mode: Reset link generated',
         resetUrl,
+        supabaseResetUrl, // Include original for debugging
       });
     }
 

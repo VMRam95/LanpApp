@@ -12,6 +12,7 @@ import logoutHandler from './_routes/auth/logout';
 import refreshHandler from './_routes/auth/refresh';
 import forgotPasswordHandler from './_routes/auth/forgot-password';
 import resetPasswordHandler from './_routes/auth/reset-password';
+import verifyResetHandler from './_routes/auth/verify-reset';
 
 // User routes
 import meHandler from './_routes/users/me';
@@ -89,6 +90,7 @@ const routes: Route[] = [
   { pattern: /^\/api\/auth\/refresh$/, handler: refreshHandler },
   { pattern: /^\/api\/auth\/forgot-password$/, handler: forgotPasswordHandler },
   { pattern: /^\/api\/auth\/reset-password$/, handler: resetPasswordHandler },
+  { pattern: /^\/api\/auth\/verify-reset$/, handler: verifyResetHandler },
 
   // Users
   { pattern: /^\/api\/users\/me\/avatar$/, handler: meAvatarHandler },
