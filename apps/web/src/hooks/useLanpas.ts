@@ -231,7 +231,9 @@ export function useJoinLanpa() {
     onSuccess: (data) => {
       hideLoading();
       queryClient.invalidateQueries({ queryKey: lanpaKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: lanpaKeys.detail(data.id) });
+      if (data?.id) {
+        queryClient.invalidateQueries({ queryKey: lanpaKeys.detail(data.id) });
+      }
       showToast.success('Successfully joined the lanpa!');
     },
     onError: () => {
