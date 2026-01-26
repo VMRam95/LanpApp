@@ -228,9 +228,10 @@ export function useJoinLanpa() {
       const response = await api.post<{ data: Lanpa }>(`/lanpas/join/${token}`);
       return response.data.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       hideLoading();
       queryClient.invalidateQueries({ queryKey: lanpaKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: lanpaKeys.detail(data.id) });
       showToast.success('Successfully joined the lanpa!');
     },
     onError: () => {
