@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User, AuthResponse } from '@lanpapp/shared';
-import { api } from '../services/api';
+import { api, ApiError } from '../services/api';
 
 interface AuthState {
   user: User | null;
@@ -10,6 +10,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  fieldErrors: Record<string, string>;
 
   // Actions
   login: (email: string, password: string) => Promise<void>;
@@ -35,10 +36,11 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: true,
       error: null,
+      fieldErrors: {},
 
       login: async (email: string, password: string) => {
         try {
-          set({ isLoading: true, error: null });
+          set({ isLoading: true, error: null, fieldErrors: {} });
           const response = await api.post<{ data: AuthResponse }>('/auth/login', {
             email,
             password,
@@ -56,17 +58,26 @@ export const useAuthStore = create<AuthState>()(
           api.defaults.headers.common['Authorization'] =
             `Bearer ${session.access_token}`;
         } catch (error) {
-          set({
-            error: 'Invalid email or password',
-            isLoading: false,
-          });
+          if (error instanceof ApiError) {
+            set({
+              error: error.message,
+              fieldErrors: error.getFieldErrors(),
+              isLoading: false,
+            });
+          } else {
+            set({
+              error: 'Invalid email or password',
+              fieldErrors: {},
+              isLoading: false,
+            });
+          }
           throw error;
         }
       },
 
       register: async (data) => {
         try {
-          set({ isLoading: true, error: null });
+          set({ isLoading: true, error: null, fieldErrors: {} });
           const response = await api.post<{ data: AuthResponse }>('/auth/register', data);
           const { user, session } = response.data.data;
 
@@ -81,10 +92,19 @@ export const useAuthStore = create<AuthState>()(
           api.defaults.headers.common['Authorization'] =
             `Bearer ${session.access_token}`;
         } catch (error) {
-          set({
-            error: 'Failed to create account',
-            isLoading: false,
-          });
+          if (error instanceof ApiError) {
+            set({
+              error: error.message,
+              fieldErrors: error.getFieldErrors(),
+              isLoading: false,
+            });
+          } else {
+            set({
+              error: 'Failed to create account',
+              fieldErrors: {},
+              isLoading: false,
+            });
+          }
           throw error;
         }
       },
@@ -137,7 +157,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       clearError: () => {
-        set({ error: null });
+        set({ error: null, fieldErrors: {} });
       },
     }),
     {

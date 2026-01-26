@@ -7,7 +7,7 @@ import { useAuthStore } from '../store/auth.store';
 
 export function Register() {
   const { t } = useTranslation();
-  const { register, error, clearError } = useAuth();
+  const { register, error, fieldErrors, clearError } = useAuth();
   const { isAuthenticated, isLoading } = useAuthStore();
   const [formData, setFormData] = useState({
     email: '',
@@ -87,6 +87,7 @@ export function Register() {
               placeholder="you@example.com"
               required
               autoComplete="email"
+              error={fieldErrors.email}
             />
 
             <Input
@@ -98,6 +99,7 @@ export function Register() {
               placeholder="johndoe"
               required
               autoComplete="username"
+              error={fieldErrors.username}
             />
 
             <Input
@@ -108,6 +110,7 @@ export function Register() {
               onChange={handleChange}
               placeholder="John Doe"
               autoComplete="name"
+              error={fieldErrors.display_name}
             />
 
             <Input
@@ -119,6 +122,7 @@ export function Register() {
               placeholder="********"
               required
               autoComplete="new-password"
+              error={fieldErrors.password}
             />
 
             <Input
@@ -130,13 +134,12 @@ export function Register() {
               placeholder="********"
               required
               autoComplete="new-password"
+              error={validationError}
             />
 
-            {(error || validationError) && (
+            {error && Object.keys(fieldErrors).length === 0 && !validationError && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">
-                  {validationError || t('auth.registerError')}
-                </p>
+                <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
 

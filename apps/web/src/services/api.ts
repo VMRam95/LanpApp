@@ -1,7 +1,44 @@
 import axios, { AxiosError } from 'axios';
-import type { ApiError } from '@lanpapp/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
+// Field-level error from API validation
+export interface FieldError {
+  field: string;
+  message: string;
+}
+
+// API error response structure
+export interface ApiErrorResponse {
+  error: string;
+  message: string;
+  statusCode: number;
+  details?: FieldError[];
+}
+
+// Custom error class that preserves field-level errors
+export class ApiError extends Error {
+  public statusCode: number;
+  public details?: FieldError[];
+
+  constructor(response: ApiErrorResponse) {
+    super(response.message);
+    this.name = 'ApiError';
+    this.statusCode = response.statusCode;
+    this.details = response.details;
+  }
+
+  getFieldErrors(): Record<string, string> {
+    if (!this.details) return {};
+    return this.details.reduce(
+      (acc, { field, message }) => {
+        acc[field] = message;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+  }
+}
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -25,7 +62,7 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError<ApiError>) => {
+  async (error: AxiosError<ApiErrorResponse>) => {
     const originalRequest = error.config;
 
     // Handle 401 Unauthorized
@@ -67,13 +104,20 @@ api.interceptors.response.use(
       }
     }
 
-    // Format error message
-    const message =
-      error.response?.data?.message ||
-      error.message ||
-      'An unexpected error occurred';
+    // Preserve field-level errors from API
+    const apiError = error.response?.data;
+    if (apiError && typeof apiError === 'object' && 'message' in apiError) {
+      return Promise.reject(
+        new ApiError({
+          error: apiError.error || 'Error',
+          message: apiError.message,
+          statusCode: error.response?.status || 500,
+          details: apiError.details,
+        })
+      );
+    }
 
-    return Promise.reject(new Error(message));
+    return Promise.reject(new Error(error.message || 'An unexpected error occurred'));
   }
 );
 

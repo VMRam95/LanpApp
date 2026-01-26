@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/auth.store';
+import { showToast } from '../lib/toast';
 
 export function useAuth() {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ export function useAuth() {
     isAuthenticated,
     isLoading,
     error,
+    fieldErrors,
     login: storeLogin,
     register: storeRegister,
     logout: storeLogout,
@@ -21,8 +23,10 @@ export function useAuth() {
       try {
         await storeLogin(email, password);
         navigate('/dashboard');
-      } catch {
-        // Error is handled in store
+      } catch (error) {
+        if (error instanceof Error) {
+          showToast.error(error.message);
+        }
       }
     },
     [storeLogin, navigate]
@@ -38,8 +42,10 @@ export function useAuth() {
       try {
         await storeRegister(data);
         navigate('/dashboard');
-      } catch {
-        // Error is handled in store
+      } catch (error) {
+        if (error instanceof Error) {
+          showToast.error(error.message);
+        }
       }
     },
     [storeRegister, navigate]
@@ -55,6 +61,7 @@ export function useAuth() {
     isAuthenticated,
     isLoading,
     error,
+    fieldErrors,
     login,
     register,
     logout,

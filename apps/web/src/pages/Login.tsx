@@ -7,7 +7,7 @@ import { useAuthStore } from '../store/auth.store';
 
 export function Login() {
   const { t } = useTranslation();
-  const { login, error, clearError } = useAuth();
+  const { login, error, fieldErrors, clearError } = useAuth();
   const { isAuthenticated, isLoading } = useAuthStore();
   const [formData, setFormData] = useState({
     email: '',
@@ -71,6 +71,7 @@ export function Login() {
               placeholder="you@example.com"
               required
               autoComplete="email"
+              error={fieldErrors.email}
             />
 
             <Input
@@ -82,11 +83,12 @@ export function Login() {
               placeholder="********"
               required
               autoComplete="current-password"
+              error={fieldErrors.password}
             />
 
-            {error && (
+            {error && Object.keys(fieldErrors).length === 0 && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{t('auth.loginError')}</p>
+                <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
 
